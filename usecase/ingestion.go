@@ -3,7 +3,8 @@ package usecase
 import (
 	"context"
 
-	"github.com/getsentry/sentry-go"
+	"github.com/sirupsen/logrus"
+
 	"github.com/javiertlopez/awesome/errorcodes"
 	"github.com/javiertlopez/awesome/model"
 )
@@ -11,16 +12,19 @@ import (
 type ingestion struct {
 	assets Assets
 	videos Videos
+	logger *logrus.Logger
 }
 
 // Ingestion returns the usecase implementation
 func Ingestion(
 	a Assets,
 	v Videos,
+	l *logrus.Logger,
 ) ingestion {
 	return ingestion{
 		assets: a,
 		videos: v,
+		logger: l,
 	}
 }
 
@@ -45,7 +49,7 @@ func (u ingestion) Create(ctx context.Context, anyVideo model.Video) (model.Vide
 
 		asset, err := u.assets.Create(ctx, anyVideo.SourceURL, isPublic)
 		if err != nil {
-			sentry.CaptureException(err)
+			u.logger.WithError(err).Error(err.Error())
 			return model.Video{}, errorcodes.ErrIngestionFailed
 		}
 
@@ -55,7 +59,7 @@ func (u ingestion) Create(ctx context.Context, anyVideo model.Video) (model.Vide
 	response, err := u.videos.Create(ctx, anyVideo)
 
 	if err != nil {
-		sentry.CaptureException(err)
+		u.logger.WithError(err).Error(err.Error())
 		return model.Video{}, err
 	}
 

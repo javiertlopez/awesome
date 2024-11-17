@@ -4,7 +4,6 @@ import (
 	"context"
 	"time"
 
-	"github.com/getsentry/sentry-go"
 	guuid "github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/bson"
@@ -66,8 +65,7 @@ func (v videos) Create(ctx context.Context, anyVideo model.Video) (model.Video, 
 
 	_, err := collection.InsertOne(ctx, insert)
 	if err != nil {
-		sentry.CaptureException(err)
-		v.logger.WithFields(logrus.Fields{
+		v.logger.WithError(err).WithFields(logrus.Fields{
 			"step": "collection.InsertOne",
 			"func": "func (v *videos) Insert",
 			"uuid": uuid,

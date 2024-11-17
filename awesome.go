@@ -4,7 +4,6 @@ import (
 	"context"
 	"time"
 
-	"github.com/getsentry/sentry-go"
 	"github.com/gorilla/mux"
 	muxgo "github.com/muxinc/mux-go/v5"
 	"github.com/sirupsen/logrus"
@@ -53,7 +52,7 @@ func New(config AppConfig, logger *logrus.Logger) App {
 	// Connect to Mongo Atlas
 	client, err := mongo.Connect(ctx, clientOptions)
 	if err != nil {
-		sentry.CaptureException(err)
+		logger.WithError(err).Error(err.Error())
 		logger.Fatal(err)
 	}
 	db := client.Database(Database)
@@ -80,7 +79,7 @@ func New(config AppConfig, logger *logrus.Logger) App {
 	delivery := usecase.Delivery(assets, videos, logger)
 
 	// Init ingestion usecase
-	ingestion := usecase.Ingestion(assets, videos)
+	ingestion := usecase.Ingestion(assets, videos, logger)
 
 	// Init controller
 	controller := controller.New(config.Commit, config.Version, delivery, ingestion)
