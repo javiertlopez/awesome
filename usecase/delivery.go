@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 
+	"github.com/getsentry/sentry-go"
 	"github.com/javiertlopez/awesome/model"
 	"github.com/sirupsen/logrus"
 )
@@ -31,6 +32,7 @@ func (u delivery) GetByID(ctx context.Context, id string) (model.Video, error) {
 	response, err := u.videos.GetByID(ctx, id)
 
 	if err != nil {
+		sentry.CaptureException(err)
 		return model.Video{}, err
 	}
 
@@ -38,6 +40,7 @@ func (u delivery) GetByID(ctx context.Context, id string) (model.Video, error) {
 	if response.Asset != nil {
 		asset, err := u.assets.GetByID(ctx, response.Asset.ID)
 		if err != nil {
+			sentry.CaptureException(err)
 			u.logger.Error(err)
 			return response, nil
 		}

@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 
+	"github.com/getsentry/sentry-go"
 	"github.com/javiertlopez/awesome/errorcodes"
 	"github.com/javiertlopez/awesome/model"
 )
@@ -43,14 +44,18 @@ func (u ingestion) Create(ctx context.Context, anyVideo model.Video) (model.Vide
 		}
 
 		asset, err := u.assets.Create(ctx, anyVideo.SourceURL, isPublic)
-		if err == nil {
-			anyVideo.Asset = &asset
+		if err != nil {
+			sentry.CaptureException(err)
+			return model.Video{}, errorcodes.ErrIngestionFailed
 		}
+
+		anyVideo.Asset = &asset
 	}
 
 	response, err := u.videos.Create(ctx, anyVideo)
 
 	if err != nil {
+		sentry.CaptureException(err)
 		return model.Video{}, err
 	}
 
