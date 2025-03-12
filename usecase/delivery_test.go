@@ -7,9 +7,12 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/sirupsen/logrus"
+	"github.com/stretchr/testify/assert"
+
+	"github.com/javiertlopez/awesome/errorcodes"
 	"github.com/javiertlopez/awesome/model"
 	"github.com/javiertlopez/awesome/usecase/mocks"
-	"github.com/sirupsen/logrus"
 )
 
 // Generate mocks
@@ -31,6 +34,7 @@ func Test_delivery_GetByID(t *testing.T) {
 			},
 		},
 	}
+	err := errors.New("failed")
 	type args struct {
 		ctx context.Context
 		id  string
@@ -40,6 +44,7 @@ func Test_delivery_GetByID(t *testing.T) {
 		args    args
 		want    model.Video
 		wantErr bool
+		err     error
 	}{
 		{
 			"Only video",
@@ -49,6 +54,7 @@ func Test_delivery_GetByID(t *testing.T) {
 			},
 			model.Video{},
 			false,
+			nil,
 		},
 		{
 			"Error",
@@ -58,6 +64,7 @@ func Test_delivery_GetByID(t *testing.T) {
 			},
 			model.Video{},
 			true,
+			err,
 		},
 		{
 			"With asset",
@@ -77,6 +84,7 @@ func Test_delivery_GetByID(t *testing.T) {
 				},
 			},
 			false,
+			nil,
 		},
 		{
 			"With invalid ID",
@@ -86,6 +94,7 @@ func Test_delivery_GetByID(t *testing.T) {
 			},
 			model.Video{},
 			true,
+			errorcodes.ErrInvalidID,
 		},
 	}
 	for _, tt := range tests {
@@ -107,10 +116,11 @@ func Test_delivery_GetByID(t *testing.T) {
 			}
 
 			got, err := usecase.GetByID(tt.args.ctx, tt.args.id)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("delivery.GetByID() error = %v, wantErr %v", err, tt.wantErr)
-				return
+			if tt.wantErr {
+				assert.Error(t, err)
+				assert.Equal(t, tt.err, err)
 			}
+
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("delivery.GetByID() = %v, want %v", got, tt.want)
 			}
