@@ -78,6 +78,15 @@ func Test_delivery_GetByID(t *testing.T) {
 			},
 			false,
 		},
+		{
+			"With invalid ID",
+			args{
+				ctx: context.Background(),
+				id:  "invalid",
+			},
+			model.Video{},
+			true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
