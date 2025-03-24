@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	guuid "github.com/google/uuid"
+	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo"
@@ -33,10 +33,10 @@ func (db *DB) Create(ctx context.Context, anyVideo model.Video) (model.Video, er
 	collection := db.mongo.Collection(Collection)
 	time := time.Now()
 
-	uuid := guuid.New().String()
+	id := uuid.New().String()
 
 	insert := &video{
-		ID:          uuid,
+		ID:          id,
 		Title:       anyVideo.Title,
 		Description: anyVideo.Description,
 		CreatedAt:   time,
@@ -52,7 +52,7 @@ func (db *DB) Create(ctx context.Context, anyVideo model.Video) (model.Video, er
 		db.logger.WithFields(logrus.Fields{
 			"step": "collection.InsertOne",
 			"func": "func (v *videos) Insert",
-			"uuid": uuid,
+			"id":   id,
 		}).Error(err.Error())
 
 		return model.Video{}, err
@@ -63,6 +63,11 @@ func (db *DB) Create(ctx context.Context, anyVideo model.Video) (model.Video, er
 
 // GetByID retrieves a video with the ID
 func (db *DB) GetByID(ctx context.Context, id string) (model.Video, error) {
+	// Validate UUID format
+	if _, err := uuid.Parse(id); err != nil {
+		return model.Video{}, errorcodes.ErrInvalidID
+	}
+
 	var response video
 
 	collection := db.mongo.Collection(Collection)
