@@ -3,9 +3,11 @@ package usecase
 import (
 	"context"
 	"errors"
+	"io"
 	"reflect"
 	"testing"
 
+	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/mock"
 
 	"github.com/javiertlopez/awesome/model"
@@ -16,6 +18,9 @@ import (
 // mockery --keeptree --name=Assets --dir=usecase --output=usecase/mocks
 
 func Test_ingestion_Create(t *testing.T) {
+	logger := logrus.New()
+	logger.Out = io.Discard
+
 	uuid := "4e5bf8f2-9c50-4576-b9d4-1d1fd0705885"
 	asset := model.Asset{
 		ID: uuid,
@@ -109,6 +114,7 @@ func Test_ingestion_Create(t *testing.T) {
 			usecase := &ingestion{
 				assets,
 				videos,
+				logger,
 			}
 
 			if tt.wantErr {
