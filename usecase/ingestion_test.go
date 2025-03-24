@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"errors"
 	"io"
 	"testing"
 
@@ -148,6 +149,48 @@ func Test_ingestion_Create(t *testing.T) {
 			want:    model.Video{},
 			wantErr: false,
 			err:     nil,
+		},
+		{
+			name: "Video ingestion failed",
+			args: args{
+				ctx: context.Background(),
+				anyVideo: model.Video{
+					Title:       "Some Might Say",
+					Description: "(What's the Story) Morning Glory?",
+					SourceURL:   "https://storage.googleapis.com/muxdemofiles/mux-video-intro.mp4",
+					Policy:      "public",
+				},
+			},
+			mocks: mockReturns{
+				assetResp: model.Asset{},
+				assetErr:  errors.New("asset creation failed"),
+				videoResp: model.Video{},
+				videoErr:  nil,
+			},
+			want:    model.Video{},
+			wantErr: true,
+			err:     errorcodes.ErrIngestionFailed,
+		},
+		{
+			name: "Video creation failed",
+			args: args{
+				ctx: context.Background(),
+				anyVideo: model.Video{
+					Title:       "Some Might Say",
+					Description: "(What's the Story) Morning Glory?",
+					SourceURL:   "https://storage.googleapis.com/muxdemofiles/mux-video-intro.mp4",
+					Policy:      "public",
+				},
+			},
+			mocks: mockReturns{
+				assetResp: asset,
+				assetErr:  nil,
+				videoResp: model.Video{},
+				videoErr:  errors.New("asset creation failed"),
+			},
+			want:    model.Video{},
+			wantErr: true,
+			err:     errors.New("asset creation failed"),
 		},
 	}
 	for _, tt := range tests {
