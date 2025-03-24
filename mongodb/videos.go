@@ -63,16 +63,11 @@ func (db *DB) Create(ctx context.Context, anyVideo model.Video) (model.Video, er
 
 // GetByID retrieves a video with the ID
 func (db *DB) GetByID(ctx context.Context, id string) (model.Video, error) {
-	// Validate UUID format
-	if _, err := uuid.Parse(id); err != nil {
-		return model.Video{}, errorcodes.ErrInvalidID
-	}
-
 	var response video
 
 	collection := db.mongo.Collection(Collection)
 
-	filter := bson.M{"_id": id}
+	filter := bson.D{{Key: "_id", Value: id}}
 
 	err := collection.FindOne(ctx, filter).Decode(&response)
 
