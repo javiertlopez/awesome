@@ -57,7 +57,6 @@ func (u ingestion) Create(ctx context.Context, anyVideo model.Video) (model.Vide
 	}
 
 	response, err := u.videos.Create(ctx, anyVideo)
-
 	if err != nil {
 		u.logger.WithError(err).Error(err.Error())
 		return model.Video{}, err
