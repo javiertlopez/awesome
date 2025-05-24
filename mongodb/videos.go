@@ -89,7 +89,7 @@ func (db *DB) GetByID(ctx context.Context, id string) (model.Video, error) {
 	return response.toModel(), nil
 }
 
-// List returns paginated videos in the collection
+// List returns paginated videos from the collection using page and limit parameters.
 func (db *DB) List(ctx context.Context, page, limit int) ([]model.Video, error) {
 	collection := db.mongo.Collection(Collection)
 	if page < 1 {
@@ -100,7 +100,7 @@ func (db *DB) List(ctx context.Context, page, limit int) ([]model.Video, error) 
 	}
 	skip := int64((page - 1) * limit)
 	lim := int64(limit)
-	opts := options.Find().SetSkip(skip).SetLimit(lim)
+	opts := options.Find().SetSkip(skip).SetLimit(lim).SetSort(bson.D{{Key: "createdAt", Value: 1}})
 	cur, err := collection.Find(ctx, bson.D{}, opts)
 	if err != nil {
 		db.logger.WithFields(logrus.Fields{
