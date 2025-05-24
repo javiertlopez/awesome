@@ -16,5 +16,5 @@ type Assets interface {
 type Videos interface {
 	Create(ctx context.Context, anyVideo model.Video) (model.Video, error)
 	GetByID(ctx context.Context, id string) (model.Video, error)
-	List(ctx context.Context) ([]model.Video, error)
+	List(ctx context.Context, page, limit int) ([]model.Video, error)
 }

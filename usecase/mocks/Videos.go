@@ -56,13 +56,13 @@ func (_m *Videos) GetByID(ctx context.Context, id string) (model.Video, error) {
 	return r0, r1
 }
 
-// List provides a mock function with given fields: ctx
-func (_m *Videos) List(ctx context.Context) ([]model.Video, error) {
-	ret := _m.Called(ctx)
-	if ret.Get(0) == nil {
-		return nil, ret.Error(1)
+// List provides a mock function for the List method with pagination
+func (m *Videos) List(ctx context.Context, page, limit int) ([]model.Video, error) {
+	args := m.Called(ctx, page, limit)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
 	}
-	return ret.Get(0).([]model.Video), ret.Error(1)
+	return args.Get(0).([]model.Video), args.Error(1)
 }
 
 type mockConstructorTestingTNewVideos interface {

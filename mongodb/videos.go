@@ -8,6 +8,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo"
+	"go.mongodb.org/mongo-driver/v2/mongo/options"
 
 	"github.com/javiertlopez/awesome/errorcodes"
 	"github.com/javiertlopez/awesome/model"
@@ -88,10 +89,19 @@ func (db *DB) GetByID(ctx context.Context, id string) (model.Video, error) {
 	return response.toModel(), nil
 }
 
-// List returns all videos in the collection
-func (db *DB) List(ctx context.Context) ([]model.Video, error) {
+// List returns paginated videos in the collection
+func (db *DB) List(ctx context.Context, page, limit int) ([]model.Video, error) {
 	collection := db.mongo.Collection(Collection)
-	cur, err := collection.Find(ctx, bson.D{})
+	if page < 1 {
+		page = 1
+	}
+	if limit < 1 {
+		limit = 10
+	}
+	skip := int64((page - 1) * limit)
+	lim := int64(limit)
+	opts := options.Find().SetSkip(skip).SetLimit(lim)
+	cur, err := collection.Find(ctx, bson.D{}, opts)
 	if err != nil {
 		db.logger.WithFields(logrus.Fields{
 			"step": "collection.Find",

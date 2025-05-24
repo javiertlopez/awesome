@@ -3,6 +3,7 @@ package controller
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 
 	"github.com/gorilla/mux"
 
@@ -111,7 +112,19 @@ func (c controller) GetByID(w http.ResponseWriter, r *http.Request) {
 
 // List controller
 func (c controller) List(w http.ResponseWriter, r *http.Request) {
-	videos, err := c.delivery.List(r.Context())
+	page := 1
+	limit := 10
+	if p := r.URL.Query().Get("page"); p != "" {
+		if v, err := strconv.Atoi(p); err == nil && v > 0 {
+			page = v
+		}
+	}
+	if l := r.URL.Query().Get("limit"); l != "" {
+		if v, err := strconv.Atoi(l); err == nil && v > 0 {
+			limit = v
+		}
+	}
+	videos, err := c.delivery.List(r.Context(), page, limit)
 	if err != nil {
 		JSONResponse(
 			w, http.StatusInternalServerError,

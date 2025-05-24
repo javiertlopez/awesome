@@ -14,18 +14,12 @@ import (
 
 func Test_videoController_List(t *testing.T) {
 	videos := []model.Video{
-		{
-			ID:    "id1",
-			Title: "Video 1",
-		},
-		{
-			ID:    "id2",
-			Title: "Video 2",
-		},
+		{ID: "id1", Title: "Video 1"},
+		{ID: "id2", Title: "Video 2"},
 	}
 	t.Run("Success", func(t *testing.T) {
 		delivery := &mocks.Delivery{}
-		delivery.On("List", mock.Anything).Return(videos, nil)
+		delivery.On("List", mock.Anything, 1, 10).Return(videos, nil)
 		controller := &controller{delivery: delivery}
 
 		r, _ := http.NewRequest("GET", "/videos", nil)
@@ -39,9 +33,25 @@ func Test_videoController_List(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, videos, got)
 	})
+	t.Run("With pagination params", func(t *testing.T) {
+		delivery := &mocks.Delivery{}
+		delivery.On("List", mock.Anything, 2, 5).Return(videos, nil)
+		controller := &controller{delivery: delivery}
+
+		r, _ := http.NewRequest("GET", "/videos?page=2&limit=5", nil)
+		w := httptest.NewRecorder()
+
+		controller.List(w, r)
+
+		assert.Equal(t, http.StatusOK, w.Code)
+		var got []model.Video
+		err := json.Unmarshal(w.Body.Bytes(), &got)
+		assert.NoError(t, err)
+		assert.Equal(t, videos, got)
+	})
 	t.Run("Internal error", func(t *testing.T) {
 		delivery := &mocks.Delivery{}
-		delivery.On("List", mock.Anything).Return(nil, assert.AnError)
+		delivery.On("List", mock.Anything, 1, 10).Return(nil, assert.AnError)
 		controller := &controller{delivery: delivery}
 
 		r, _ := http.NewRequest("GET", "/videos", nil)

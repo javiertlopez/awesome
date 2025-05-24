@@ -203,10 +203,21 @@ func Test_delivery_List(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		videos := &mocks.Videos{}
 		assets := &mocks.Assets{}
-		videos.On("List", mock.Anything).Return(videosList, nil)
+		videos.On("List", mock.Anything, 1, 10).Return(videosList, nil)
 		usecase := &delivery{assets, videos, logger}
 
-		got, err := usecase.List(context.Background())
+		got, err := usecase.List(context.Background(), 1, 10)
+		assert.NoError(t, err)
+		assert.Equal(t, videosList, got)
+	})
+
+	t.Run("With pagination params", func(t *testing.T) {
+		videos := &mocks.Videos{}
+		assets := &mocks.Assets{}
+		videos.On("List", mock.Anything, 2, 5).Return(videosList, nil)
+		usecase := &delivery{assets, videos, logger}
+
+		got, err := usecase.List(context.Background(), 2, 5)
 		assert.NoError(t, err)
 		assert.Equal(t, videosList, got)
 	})
@@ -215,10 +226,10 @@ func Test_delivery_List(t *testing.T) {
 		videos := &mocks.Videos{}
 		assets := &mocks.Assets{}
 		expectedErr := errors.New("db error")
-		videos.On("List", mock.Anything).Return(nil, expectedErr)
+		videos.On("List", mock.Anything, 1, 10).Return(nil, expectedErr)
 		usecase := &delivery{assets, videos, logger}
 
-		got, err := usecase.List(context.Background())
+		got, err := usecase.List(context.Background(), 1, 10)
 		assert.Error(t, err)
 		assert.Nil(t, got)
 		assert.Equal(t, expectedErr, err)

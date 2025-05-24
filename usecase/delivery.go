@@ -60,8 +60,8 @@ func (u delivery) GetByID(ctx context.Context, id string) (model.Video, error) {
 }
 
 // List method
-func (u delivery) List(ctx context.Context) ([]model.Video, error) {
-	videos, err := u.videos.List(ctx)
+func (u delivery) List(ctx context.Context, page, limit int) ([]model.Video, error) {
+	videos, err := u.videos.List(ctx, page, limit)
 	if err != nil {
 		u.logger.WithError(err).Error(err.Error())
 		return nil, err
