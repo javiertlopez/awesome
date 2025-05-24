@@ -58,3 +58,13 @@ func (u delivery) GetByID(ctx context.Context, id string) (model.Video, error) {
 
 	return response, nil
 }
+
+// List method
+func (u delivery) List(ctx context.Context) ([]model.Video, error) {
+	videos, err := u.videos.List(ctx)
+	if err != nil {
+		u.logger.WithError(err).Error(err.Error())
+		return nil, err
+	}
+	return videos, nil
+}

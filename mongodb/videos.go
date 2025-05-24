@@ -88,6 +88,33 @@ func (db *DB) GetByID(ctx context.Context, id string) (model.Video, error) {
 	return response.toModel(), nil
 }
 
+// List returns all videos in the collection
+func (db *DB) List(ctx context.Context) ([]model.Video, error) {
+	collection := db.mongo.Collection(Collection)
+	cur, err := collection.Find(ctx, bson.D{})
+	if err != nil {
+		db.logger.WithFields(logrus.Fields{
+			"step": "collection.Find",
+			"func": "func (db *DB) List",
+		}).Error(err.Error())
+		return nil, err
+	}
+	defer cur.Close(ctx)
+
+	var videos []model.Video
+	for cur.Next(ctx) {
+		var v video
+		if err := cur.Decode(&v); err != nil {
+			return nil, err
+		}
+		videos = append(videos, v.toModel())
+	}
+	if err := cur.Err(); err != nil {
+		return nil, err
+	}
+	return videos, nil
+}
+
 func (v video) toModel() model.Video {
 	return model.Video{
 		ID:          v.ID,

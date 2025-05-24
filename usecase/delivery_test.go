@@ -8,6 +8,7 @@ import (
 
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 
 	"github.com/javiertlopez/awesome/errorcodes"
 	"github.com/javiertlopez/awesome/model"
@@ -188,4 +189,38 @@ func Test_delivery_GetByID(t *testing.T) {
 			assert.Equal(t, tt.want, got)
 		})
 	}
+}
+
+func Test_delivery_List(t *testing.T) {
+	logger := logrus.New()
+	logger.Out = io.Discard
+
+	videosList := []model.Video{
+		{ID: "id1", Title: "Video 1"},
+		{ID: "id2", Title: "Video 2"},
+	}
+
+	t.Run("Success", func(t *testing.T) {
+		videos := &mocks.Videos{}
+		assets := &mocks.Assets{}
+		videos.On("List", mock.Anything).Return(videosList, nil)
+		usecase := &delivery{assets, videos, logger}
+
+		got, err := usecase.List(context.Background())
+		assert.NoError(t, err)
+		assert.Equal(t, videosList, got)
+	})
+
+	t.Run("Error", func(t *testing.T) {
+		videos := &mocks.Videos{}
+		assets := &mocks.Assets{}
+		expectedErr := errors.New("db error")
+		videos.On("List", mock.Anything).Return(nil, expectedErr)
+		usecase := &delivery{assets, videos, logger}
+
+		got, err := usecase.List(context.Background())
+		assert.Error(t, err)
+		assert.Nil(t, got)
+		assert.Equal(t, expectedErr, err)
+	})
 }

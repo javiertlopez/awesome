@@ -36,6 +36,15 @@ func (_m *Delivery) GetByID(ctx context.Context, id string) (model.Video, error)
 	return r0, r1
 }
 
+// List provides a mock function for the List method
+func (_m *Delivery) List(ctx context.Context) ([]model.Video, error) {
+	ret := _m.Called(ctx)
+	if ret.Get(0) == nil {
+		return nil, ret.Error(1)
+	}
+	return ret.Get(0).([]model.Video), ret.Error(1)
+}
+
 type mockConstructorTestingTNewDelivery interface {
 	mock.TestingT
 	Cleanup(func())

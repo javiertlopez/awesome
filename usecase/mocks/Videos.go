@@ -56,6 +56,15 @@ func (_m *Videos) GetByID(ctx context.Context, id string) (model.Video, error) {
 	return r0, r1
 }
 
+// List provides a mock function with given fields: ctx
+func (_m *Videos) List(ctx context.Context) ([]model.Video, error) {
+	ret := _m.Called(ctx)
+	if ret.Get(0) == nil {
+		return nil, ret.Error(1)
+	}
+	return ret.Get(0).([]model.Video), ret.Error(1)
+}
+
 type mockConstructorTestingTNewVideos interface {
 	mock.TestingT
 	Cleanup(func())

@@ -108,3 +108,19 @@ func (c controller) GetByID(w http.ResponseWriter, r *http.Request) {
 		response,
 	)
 }
+
+// List controller
+func (c controller) List(w http.ResponseWriter, r *http.Request) {
+	videos, err := c.delivery.List(r.Context())
+	if err != nil {
+		JSONResponse(
+			w, http.StatusInternalServerError,
+			Response{
+				Message: "Internal server error",
+				Status:  http.StatusInternalServerError,
+			},
+		)
+		return
+	}
+	JSONResponse(w, http.StatusOK, videos)
+}
