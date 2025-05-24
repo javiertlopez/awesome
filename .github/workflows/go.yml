@@ -50,16 +50,10 @@ jobs:
           fail_ci_if_error: true
           token: ${{ secrets.CODECOV_TOKEN }}
           verbose: true
-          
+
       - name: Generate SBOM
         uses: anchore/sbom-action@v0
         with:
           format: spdx-json
+          artifact-name: sbom-${{ matrix.go }}-${{ github.run_id }}
           output-file: sbom-${{ matrix.go }}.spdx.json
-          
-      - name: Upload SBOM as artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: sbom-${{ matrix.go }}-${{ github.run_id }}
-          path: sbom-${{ matrix.go }}.spdx.json
-          retention-days: 5
