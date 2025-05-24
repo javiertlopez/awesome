@@ -55,11 +55,11 @@ jobs:
         uses: anchore/sbom-action@v0
         with:
           format: spdx-json
-          output-file: sbom.spdx.json
+          output-file: sbom-${{ matrix.go }}.spdx.json
           
       - name: Upload SBOM as artifact
         uses: actions/upload-artifact@v4
         with:
-          name: sbom-${{ matrix.go }}
-          path: sbom.spdx.json
+          name: sbom-${{ matrix.go }}-${{ github.run_id }}
+          path: sbom-${{ matrix.go }}.spdx.json
           retention-days: 5
